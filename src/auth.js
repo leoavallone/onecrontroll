@@ -11,6 +11,13 @@ export const USERS = [
     password: 'Avallone2511!',
     initials: 'LA',
   },
+  {
+    id: 'u2',
+    name: 'Dani',
+    email: 'daniiroque13@gmail.com',
+    password: '39840918Dani*',
+    initials: 'DR',
+  },
 ];
 
 export const authenticateUser = (email, password) => {
