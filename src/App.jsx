@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   LayoutDashboard, CreditCard, Receipt, TrendingUp,
   Settings, LogOut, Wallet, Plus, ChevronLeft, ChevronRight,
@@ -28,9 +28,32 @@ function App() {
   const handleLogin = (loggedUser) => setUser(loggedUser);
   const handleLogout = () => { clearSession(); setUser(null); };
 
+  const loadUserTransactions = (userId) => {
+    try {
+      const stored = localStorage.getItem(`financas_txs_${userId}`);
+      if (stored) return JSON.parse(stored);
+      if (userId === 'u1') return INITIAL_TRANSACTIONS;
+      return [];
+    } catch {
+      return [];
+    }
+  };
+
   // ── State ──
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [transactions, setTransactions] = useState(INITIAL_TRANSACTIONS);
+  const [transactions, setTransactions] = useState(() => user ? loadUserTransactions(user.id) : []);
+
+  useEffect(() => {
+    if (user) {
+      setTransactions(loadUserTransactions(user.id));
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem(`financas_txs_${user.id}`, JSON.stringify(transactions));
+    }
+  }, [transactions, user]);
   const [editingTx, setEditingTx] = useState(null);
   const [showNewModal, setShowNewModal] = useState(false);
   const [newModalDefaults, setNewModalDefaults] = useState(null);

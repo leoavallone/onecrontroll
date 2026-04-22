@@ -21,6 +21,7 @@ export const getCategoryById = (id) =>
 export const CARDS = [
   { id: 'itau', name: 'Itaú', color: '#f59e0b', gradient: 'linear-gradient(135deg, #1a1a1a, #2a1a00)' },
   { id: 'porto', name: 'Porto Seguro', color: '#ef4444', gradient: 'linear-gradient(135deg, #1a1a1a, #1a0000)' },
+  { id: 'nubank', name: 'Nubank', color: '#a855f7', gradient: 'linear-gradient(135deg, #1a1a1a, #1a002a)' },
 ];
 
 export const getCardById = (id) => CARDS.find((c) => c.id);
