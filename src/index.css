@@ -147,6 +147,19 @@ html, body, #root { height: 100%; font-family: var(--font); background: var(--bg
   gap: 8px;
 }
 
+.login-success {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.83rem;
+  color: #7ee4b8;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .login-footer {
   margin-top: 1.25rem;
   text-align: center;

@@ -10,11 +10,13 @@ const Login = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState('');
+  const [info, setInfo] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setInfo('');
 
     if (!email || !password || (mode === 'register' && !name.trim())) {
       setError('Preencha todos os campos.');
@@ -29,6 +31,14 @@ const Login = ({ onLogin }) => {
       const user = mode === 'register'
         ? await registerUser({ name: name.trim(), email, password })
         : await authenticateUser(email, password);
+
+      if (user?.pendingConfirmation) {
+        setMode('login');
+        setPassword('');
+        setInfo(user.message);
+        setLoading(false);
+        return;
+      }
 
       if (user) {
         saveSession(user);
@@ -85,6 +95,13 @@ const Login = ({ onLogin }) => {
           <div className="login-error">
             <AlertCircle size={16} />
             {error}
+          </div>
+        )}
+
+        {info && (
+          <div className="login-success">
+            <AlertCircle size={16} />
+            {info}
           </div>
         )}
 

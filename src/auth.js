@@ -41,6 +41,19 @@ export const registerUser = async ({ name, email, password }) => {
   }
 
   const payload = await cloudSignUp({ name, email, password });
+
+  if (!payload?.user) {
+    throw new Error('Não foi possível concluir o cadastro da conta.');
+  }
+
+  if (!payload?.access_token || !payload?.refresh_token) {
+    return {
+      pendingConfirmation: true,
+      email: payload.user.email || email,
+      message: 'Conta criada. Verifique seu e-mail para confirmar o cadastro antes de entrar.',
+    };
+  }
+
   return {
     ...mapCloudUser(payload.user, payload),
     name,
