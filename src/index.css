@@ -194,7 +194,7 @@ html, body, #root { height: 100%; font-family: var(--font); background: var(--bg
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-top: -2px;
-  margin-left: 32px; /* Align under text, assuming icon width */
+  margin-left: 4px; /* Align under text */
 }
 
 .nav-section-label {
