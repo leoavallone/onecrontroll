@@ -1,8 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { Plus, CreditCard, ChevronDown, ChevronUp, Package } from 'lucide-react';
+import { Plus, CreditCard, ChevronDown, ChevronUp, Package, Trash2 } from 'lucide-react';
 import TransactionModal from './TransactionModal';
 import TransactionTable from './TransactionTable';
-import { CARDS } from '../data';
 
 const fmt = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
@@ -11,7 +10,7 @@ const MONTH_NAMES = [
   'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'
 ];
 
-const CardPanel = ({ card, items, onAdd, onEdit, onDelete }) => {
+const CardPanel = ({ card, items, cards, onAdd, onEdit, onDelete, onDeleteCard }) => {
   const [open, setOpen] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const total = items.reduce((s, t) => s + t.amount, 0);
@@ -71,6 +70,13 @@ const CardPanel = ({ card, items, onAdd, onEdit, onDelete }) => {
           <div style={{ color: 'var(--text-muted)' }}>
             {open ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
           </div>
+          <button
+            onClick={(e) => { e.stopPropagation(); onDeleteCard(card.id); }}
+            style={{ background: 'transparent', border: 'none', color: 'var(--danger)', cursor: 'pointer', padding: '4px' }}
+            title="Excluir cartão"
+          >
+            <Trash2 size={16} />
+          </button>
         </div>
       </div>
 
@@ -84,6 +90,7 @@ const CardPanel = ({ card, items, onAdd, onEdit, onDelete }) => {
       {showModal && (
         <TransactionModal
           transaction={{ type: 'card_expense', card: card.id, category: 'outros' }}
+          cards={cards}
           onClose={() => setShowModal(false)}
           onSave={onAdd}
         />
@@ -92,8 +99,23 @@ const CardPanel = ({ card, items, onAdd, onEdit, onDelete }) => {
   );
 };
 
-const Cartoes = ({ transactions, selectedYear, selectedMonth, onAdd, onEdit, onDelete }) => {
+const Cartoes = ({ transactions, selectedYear, selectedMonth, cards = [], onAdd, onEdit, onDelete, onAddCard, onDeleteCard }) => {
   const [showModal, setShowModal] = useState(false);
+  const [showAddCard, setShowAddCard] = useState(false);
+  const [newCardForm, setNewCardForm] = useState({ name: '', color: '#f59e0b' });
+
+  const handleCreateCard = () => {
+    if (!newCardForm.name.trim()) return;
+    const newCard = {
+      id: `c_${Date.now()}`,
+      name: newCardForm.name,
+      color: newCardForm.color,
+      gradient: `linear-gradient(135deg, #1a1a1a, ${newCardForm.color}20)`,
+    };
+    onAddCard(newCard);
+    setShowAddCard(false);
+    setNewCardForm({ name: '', color: '#f59e0b' });
+  };
 
   // Regular card items (non-installment)
   const regularCardItems = transactions.filter(
@@ -109,19 +131,19 @@ const Cartoes = ({ transactions, selectedYear, selectedMonth, onAdd, onEdit, onD
   const installmentTotal = installmentItems.reduce((s, t) => s + t.amount, 0);
 
   const byCard = useMemo(() =>
-    CARDS.map((card) => ({
+    cards.map((card) => ({
       card,
       items: regularCardItems.filter((t) => t.card === card.id),
     })),
-    [regularCardItems]
+    [regularCardItems, cards]
   );
 
   const installmentByCard = useMemo(() =>
-    CARDS.map((card) => ({
+    cards.map((card) => ({
       card,
       items: installmentItems.filter((t) => t.card === card.id),
     })).filter(({ items }) => items.length > 0),
-    [installmentItems]
+    [installmentItems, cards]
   );
 
   const monthName = MONTH_NAMES[(selectedMonth || 5) - 1];
@@ -140,7 +162,7 @@ const Cartoes = ({ transactions, selectedYear, selectedMonth, onAdd, onEdit, onD
             {regularCardItems.length} gastos + {installmentItems.length} parcelas
           </div>
         </div>
-        {CARDS.map((card) => {
+        {cards.map((card) => {
           const total = transactions
             .filter((t) => t.type === 'card_expense' && t.card === card.id)
             .reduce((s, t) => s + t.amount, 0);
@@ -175,9 +197,11 @@ const Cartoes = ({ transactions, selectedYear, selectedMonth, onAdd, onEdit, onD
           key={card.id}
           card={card}
           items={items}
+          cards={cards}
           onAdd={onAdd}
           onEdit={onEdit}
           onDelete={onDelete}
+          onDeleteCard={onDeleteCard}
         />
       ))}
 
@@ -220,14 +244,52 @@ const Cartoes = ({ transactions, selectedYear, selectedMonth, onAdd, onEdit, onD
         <button className="btn btn-primary" onClick={() => setShowModal(true)} style={{ padding: '12px 28px' }}>
           <Plus size={18} /> Adicionar gasto no cartão
         </button>
+        <button className="btn btn-ghost" onClick={() => setShowAddCard(true)} style={{ padding: '12px 28px' }}>
+          <Plus size={18} /> Novo Cartão
+        </button>
       </div>
 
       {showModal && (
         <TransactionModal
           transaction={{ type: 'card_expense', category: 'outros' }}
+          cards={cards}
           onClose={() => setShowModal(false)}
           onSave={onAdd}
         />
+      )}
+
+      {showAddCard && (
+        <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && setShowAddCard(false)}>
+          <div className="modal" style={{ maxWidth: 400 }}>
+            <div className="modal-header">
+              <h3>Cadastrar Novo Cartão</h3>
+              <button className="modal-close" onClick={() => setShowAddCard(false)}>x</button>
+            </div>
+            <div className="form-group">
+              <label>Nome do Cartão *</label>
+              <input
+                className="form-control"
+                placeholder="Ex: Nubank, Inter..."
+                value={newCardForm.name}
+                onChange={(e) => setNewCardForm({ ...newCardForm, name: e.target.value })}
+              />
+            </div>
+            <div className="form-group">
+              <label>Cor *</label>
+              <input
+                type="color"
+                className="form-control"
+                value={newCardForm.color}
+                onChange={(e) => setNewCardForm({ ...newCardForm, color: e.target.value })}
+                style={{ padding: 4, height: 42 }}
+              />
+            </div>
+            <div className="modal-actions">
+              <button className="btn btn-ghost" onClick={() => setShowAddCard(false)}>Cancelar</button>
+              <button className="btn btn-primary" onClick={handleCreateCard}>Salvar Cartão</button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

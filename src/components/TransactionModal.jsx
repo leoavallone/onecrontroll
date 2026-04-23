@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { X, TrendingUp, TrendingDown, CreditCard } from 'lucide-react';
-import { CATEGORIES, CARDS } from '../data';
+import { CATEGORIES } from '../data';
 
-const TransactionModal = ({ transaction, onClose, onSave }) => {
+const TransactionModal = ({ transaction, cards = [], onClose, onSave }) => {
   const isEditing = !!transaction?.id;
   const today = new Date().toISOString().split('T')[0];
 
@@ -81,7 +81,7 @@ const TransactionModal = ({ transaction, onClose, onSave }) => {
           <div className="form-group">
             <label>Qual cartão?</label>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
-              {CARDS.map((c) => (
+              {cards.map((c) => (
                 <button
                   key={c.id}
                   className="type-btn"

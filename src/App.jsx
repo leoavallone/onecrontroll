@@ -9,7 +9,7 @@ import DespesasFixas from './components/DespesasFixas';
 import TransactionTable from './components/TransactionTable';
 import TransactionModal from './components/TransactionModal';
 import Login from './components/Login';
-import { INITIAL_TRANSACTIONS, generateInstallments } from './data';
+import { INITIAL_TRANSACTIONS, generateInstallments, DEFAULT_CARDS } from './data';
 import { loadSession, clearSession } from './auth';
 
 const fmt = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -39,13 +39,25 @@ function App() {
     }
   };
 
+  const loadUserCards = (userId) => {
+    try {
+      const stored = localStorage.getItem(`financas_cards_${userId}`);
+      if (stored) return JSON.parse(stored);
+      return DEFAULT_CARDS;
+    } catch {
+      return DEFAULT_CARDS;
+    }
+  };
+
   // ── State ──
   const [activeTab, setActiveTab] = useState('dashboard');
   const [transactions, setTransactions] = useState(() => user ? loadUserTransactions(user.id) : []);
+  const [cards, setCards] = useState(() => user ? loadUserCards(user.id) : []);
 
   useEffect(() => {
     if (user) {
       setTransactions(loadUserTransactions(user.id));
+      setCards(loadUserCards(user.id));
     }
   }, [user]);
 
@@ -54,6 +66,12 @@ function App() {
       localStorage.setItem(`financas_txs_${user.id}`, JSON.stringify(transactions));
     }
   }, [transactions, user]);
+
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem(`financas_cards_${user.id}`, JSON.stringify(cards));
+    }
+  }, [cards, user]);
   const [editingTx, setEditingTx] = useState(null);
   const [showNewModal, setShowNewModal] = useState(false);
   const [newModalDefaults, setNewModalDefaults] = useState(null);
@@ -122,6 +140,16 @@ function App() {
     }
   };
 
+  const handleAddCard = (newCard) => {
+    setCards(prev => [...prev, newCard]);
+  };
+
+  const handleDeleteCard = (cardId) => {
+    if(window.confirm('Tem certeza que deseja excluir este cartão permanentemente?')) {
+      setCards(prev => prev.filter(c => c.id !== cardId));
+    }
+  };
+
   const openNew = (defaults = {}) => {
     setNewModalDefaults(defaults);
     setShowNewModal(true);
@@ -151,9 +179,12 @@ function App() {
     allTransactions: transactions,
     selectedYear,
     selectedMonth,
+    cards,
     onAdd: handleAdd,
     onEdit: handleEdit,
     onDelete: handleDelete,
+    onAddCard: handleAddCard,
+    onDeleteCard: handleDeleteCard,
   };
 
   // ── Show Login if not authenticated ──
@@ -281,6 +312,7 @@ function App() {
       {showNewModal && (
         <TransactionModal
           transaction={newModalDefaults}
+          cards={cards}
           onClose={() => { setShowNewModal(false); setNewModalDefaults(null); }}
           onSave={handleAdd}
         />
@@ -288,6 +320,7 @@ function App() {
       {editingTx && (
         <TransactionModal
           transaction={editingTx}
+          cards={cards}
           onClose={() => setEditingTx(null)}
           onSave={handleSaveEdit}
         />

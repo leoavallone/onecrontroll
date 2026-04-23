@@ -17,14 +17,11 @@ export const CATEGORIES = [
 export const getCategoryById = (id) =>
   CATEGORIES.find((c) => c.id === id) || CATEGORIES[CATEGORIES.length - 1];
 
-// Cards registered in the system
-export const CARDS = [
+export const DEFAULT_CARDS = [
   { id: 'itau', name: 'Itaú', color: '#f59e0b', gradient: 'linear-gradient(135deg, #1a1a1a, #2a1a00)' },
   { id: 'porto', name: 'Porto Seguro', color: '#ef4444', gradient: 'linear-gradient(135deg, #1a1a1a, #1a0000)' },
   { id: 'nubank', name: 'Nubank', color: '#a855f7', gradient: 'linear-gradient(135deg, #1a1a1a, #1a002a)' },
 ];
-
-export const getCardById = (id) => CARDS.find((c) => c.id);
 
 // Helper to add months to a date string (YYYY-MM-DD) → new YYYY-MM-DD
 export const addMonths = (dateStr, months) => {
