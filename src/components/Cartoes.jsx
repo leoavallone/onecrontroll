@@ -99,7 +99,7 @@ const CardPanel = ({ card, items, cards, onAdd, onEdit, onDelete, onDeleteCard }
   );
 };
 
-const Cartoes = ({ transactions, selectedYear, selectedMonth, cards = [], onAdd, onEdit, onDelete, onAddCard, onDeleteCard }) => {
+const Cartoes = ({ transactions, selectedMonth, cards = [], onAdd, onEdit, onDelete, onAddCard, onDeleteCard }) => {
   const [showModal, setShowModal] = useState(false);
   const [showAddCard, setShowAddCard] = useState(false);
   const [newCardForm, setNewCardForm] = useState({ name: '', color: '#f59e0b' });
@@ -138,15 +138,14 @@ const Cartoes = ({ transactions, selectedYear, selectedMonth, cards = [], onAdd,
     [regularCardItems, cards]
   );
 
-  const installmentByCard = useMemo(() =>
-    cards.map((card) => ({
+  const installmentByCard = cards
+    .map((card) => ({
       card,
       items: installmentItems.filter((t) => t.card === card.id),
-    })).filter(({ items }) => items.length > 0),
-    [installmentItems, cards]
-  );
+    }))
+    .filter(({ items }) => items.length > 0);
 
-  const monthName = MONTH_NAMES[(selectedMonth || 5) - 1];
+  const monthName = MONTH_NAMES[(selectedMonth || 1) - 1];
 
   return (
     <div className="page-content animate-in">

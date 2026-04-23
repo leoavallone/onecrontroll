@@ -1,39 +1,74 @@
 # One controll
 
-One controll is a comprehensive financial management application designed to provide a clear and detailed view of your personal finances.
+Aplicação de finanças pessoais feita em React/Vite, pronta para deploy estático e com suporte a sincronização por conta usando Supabase.
 
-## Key Features
+## Arquitetura
 
-- **Dashboard:** Real-time overview of income, expenses, and balance.
-- **Credit Card Management:** Itemized tracking for different credit cards with automated monthly totals.
-- **Installment Tracking:** Manage long-term purchases with automated monthly projections and easy deletion of paid items.
-- **Categorization:** Detailed spending categories with a premium, responsive interface.
-- **Secure Access:** Individual user login for personalized financial data.
+- `src/App.jsx`: composição da interface, navegação e regras da experiência principal.
+- `src/hooks/useAccountData.js`: hidratação da conta, sincronização com a nuvem e fallback local.
+- `src/auth.js`: autenticação, persistência da sessão e refresh de token.
+- `src/cloud.js`: integração com Auth e banco do Supabase via API REST.
+- `src/services/localAccount.js`: backup local por usuário no navegador.
+- `supabase/schema.sql`: tabela e políticas RLS para isolar os dados por conta.
 
-## Getting Started
+## Recursos
 
-### Prerequisites
+- Dashboard mensal com receitas, despesas, cartões e parcelamentos.
+- Login e cadastro por conta quando o Supabase estiver configurado.
+- Backup local automático no navegador.
+- Sincronização entre computador, celular e tablet usando a mesma conta.
+- Tela de configurações com status da sincronização e ações de importação/sincronização manual.
 
-- Node.js (v18 or higher)
-- npm or yarn
+## Desenvolvimento
 
-### Installation
+### Pré-requisitos
 
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   ```
+- Node.js 18+
+- npm
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+### Instalação
 
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
+```bash
+npm install
+cp .env.example .env
+```
 
-## Design
+### Executar localmente
 
-Built with a premium dark theme using gold and accent color highlights for a modern, efficient user experience.
+```bash
+npm run dev
+```
+
+### Build de produção
+
+```bash
+npm run build
+```
+
+## Configuração do Supabase
+
+Se quiser usar apenas armazenamento local, o app funciona sem variáveis de ambiente. Para produção com conta sincronizada:
+
+1. Crie um projeto no Supabase.
+2. Em `SQL Editor`, rode o conteúdo de `supabase/schema.sql`.
+3. Em `Authentication`, deixe habilitado o provedor de e-mail/senha.
+4. Configure as variáveis abaixo no ambiente:
+
+```env
+VITE_SUPABASE_URL=https://seu-projeto.supabase.co
+VITE_SUPABASE_ANON_KEY=sua-chave-anon
+```
+
+## Deploy no Render
+
+O projeto já inclui `render.yaml` com as variáveis esperadas no build.
+
+1. Conecte o repositório no Render.
+2. Configure `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`.
+3. Publique como site estático.
+
+## Segurança de dados
+
+- Cada conta lê e escreve apenas sua própria linha na tabela `account_data`.
+- O isolamento é feito por `Row Level Security` com `auth.uid() = user_id`.
+- O navegador mantém um backup local para evitar perda de dados se a nuvem estiver temporariamente indisponível.

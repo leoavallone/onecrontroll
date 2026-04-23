@@ -570,6 +570,141 @@ tbody td { padding: 0.8rem 1rem; font-size: 0.86rem; color: var(--text-primary);
   cursor: pointer; flex-shrink: 0;
 }
 
+.auth-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.auth-toggle-btn {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem 1rem;
+  font-family: var(--font);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.auth-toggle-btn.active {
+  color: var(--gold);
+  border-color: var(--gold-border);
+  background: var(--gold-glow);
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.settings-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.settings-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.settings-header h3 {
+  font-size: 1rem;
+  margin-bottom: 0.2rem;
+}
+
+.settings-header p {
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+}
+
+.settings-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(240, 180, 41, 0.08);
+  border: 1px solid rgba(240, 180, 41, 0.18);
+  color: var(--gold);
+}
+
+.settings-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+}
+
+.settings-banner.success {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.22);
+  color: #7ee4b8;
+}
+
+.settings-banner.warning {
+  background: rgba(240, 180, 41, 0.08);
+  border-color: rgba(240, 180, 41, 0.22);
+  color: #ffd36b;
+}
+
+.settings-banner.danger {
+  background: rgba(244, 63, 94, 0.08);
+  border-color: rgba(244, 63, 94, 0.22);
+  color: #ff93a7;
+}
+
+.settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.settings-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.87rem;
+}
+
+.settings-row span {
+  color: var(--text-secondary);
+}
+
+.settings-row strong {
+  text-align: right;
+}
+
+.settings-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.settings-checklist {
+  display: grid;
+  gap: 0.8rem;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+}
+
+.settings-checklist code {
+  color: var(--gold);
+  font-family: var(--font);
+}
+
 /* ══════════════════════════════════════════
    ANIMATIONS
 ══════════════════════════════════════════ */
@@ -602,6 +737,7 @@ tbody td { padding: 0.8rem 1rem; font-size: 0.86rem; color: var(--text-primary);
   .charts-grid { grid-template-columns: 1fr; }
   .summary-grid { grid-template-columns: 1fr 1fr; }
   .month-picker span { min-width: 90px; }
+  .settings-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 480px) {

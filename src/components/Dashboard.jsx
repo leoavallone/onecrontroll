@@ -195,7 +195,7 @@ const Dashboard = ({ transactions, selectedYear, selectedMonth, onAdd, onEdit, o
       {/* ── Transactions ── */}
       <div className="card">
         <div className="section-header">
-          <h3>Lançamentos de {MONTH_LABELS[(selectedMonth || 5) - 1]}/{selectedYear || 2025}</h3>
+          <h3>Lançamentos de {MONTH_LABELS[(selectedMonth || 1) - 1]}/{selectedYear}</h3>
           <button className="btn btn-primary btn-sm" onClick={() => setShowModal(true)}>
             <Plus size={14} /> Novo Lançamento
           </button>

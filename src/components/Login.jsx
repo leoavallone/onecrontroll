@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { Wallet, Eye, EyeOff, AlertCircle, ArrowRight, Lock, Mail } from 'lucide-react';
-import { authenticateUser, saveSession } from '../auth';
+import { Eye, EyeOff, AlertCircle, ArrowRight, Lock, Mail } from 'lucide-react';
+import { authenticateUser, registerUser, saveSession } from '../auth';
+import { isCloudEnabled } from '../cloud';
 
 const Login = ({ onLogin }) => {
+  const [mode, setMode] = useState('login');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
@@ -13,7 +16,7 @@ const Login = ({ onLogin }) => {
     e.preventDefault();
     setError('');
 
-    if (!email || !password) {
+    if (!email || !password || (mode === 'register' && !name.trim())) {
       setError('Preencha todos os campos.');
       return;
     }
@@ -22,13 +25,21 @@ const Login = ({ onLogin }) => {
     // Simulate a small delay for UX
     await new Promise((r) => setTimeout(r, 600));
 
-    const user = authenticateUser(email, password);
-    if (user) {
-      saveSession(user);
-      onLogin(user);
-    } else {
-      setError('E-mail ou senha incorretos.');
+    try {
+      const user = mode === 'register'
+        ? await registerUser({ name: name.trim(), email, password })
+        : await authenticateUser(email, password);
+
+      if (user) {
+        saveSession(user);
+        onLogin(user);
+      } else {
+        setError('E-mail ou senha incorretos.');
+      }
+    } catch (err) {
+      setError(err.message || 'Não foi possível autenticar.');
     }
+
     setLoading(false);
   };
 
@@ -43,10 +54,31 @@ const Login = ({ onLogin }) => {
           <div className="tagline" style={{ marginLeft: '4px', marginBottom: '1.5rem' }}>from RoqIA</div>
         </div>
         <p className="login-subtitle">
-          Faça login para acessar suas finanças com segurança.
+          {isCloudEnabled
+            ? 'Entre ou crie sua conta para sincronizar suas finanças entre dispositivos.'
+            : 'Faça login para acessar suas finanças com segurança.'}
         </p>
 
         <div className="login-divider" />
+
+        {isCloudEnabled && (
+          <div className="auth-toggle">
+            <button
+              type="button"
+              className={`auth-toggle-btn ${mode === 'login' ? 'active' : ''}`}
+              onClick={() => setMode('login')}
+            >
+              Entrar
+            </button>
+            <button
+              type="button"
+              className={`auth-toggle-btn ${mode === 'register' ? 'active' : ''}`}
+              onClick={() => setMode('register')}
+            >
+              Criar conta
+            </button>
+          </div>
+        )}
 
         {/* Error */}
         {error && (
@@ -58,6 +90,20 @@ const Login = ({ onLogin }) => {
 
         {/* Form */}
         <form onSubmit={handleSubmit}>
+          {mode === 'register' && (
+            <div className="form-group">
+              <label>Nome</label>
+              <input
+                className="form-control"
+                type="text"
+                placeholder="Seu nome"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                autoComplete="name"
+              />
+            </div>
+          )}
+
           <div className="form-group">
             <label>E-mail</label>
             <div style={{ position: 'relative' }}>
@@ -125,7 +171,7 @@ const Login = ({ onLogin }) => {
             {loading ? (
               <span style={{ opacity: 0.7 }}>Entrando...</span>
             ) : (
-              <>Entrar <ArrowRight size={16} /></>
+              <>{mode === 'register' ? 'Criar conta' : 'Entrar'} <ArrowRight size={16} /></>
             )}
           </button>
         </form>
