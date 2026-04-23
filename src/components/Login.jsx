@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Wallet, Eye, EyeOff, AlertCircle, ArrowRight, Lock, Mail } from 'lucide-react';
 import { authenticateUser, saveSession } from '../auth';
+import roqiaLogo from '../assets/roqia_logo.png';
 
 const Login = ({ onLogin }) => {
   const [email, setEmail] = useState('');
@@ -38,10 +39,10 @@ const Login = ({ onLogin }) => {
         {/* Brand */}
         <div className="login-brand-wrapper">
           <div className="login-brand">
-            <Wallet size={28} />
-            One Controll
+            <img src={roqiaLogo} alt="RoqIA Logo" style={{ width: 34, height: 34, objectFit: 'contain' }} />
+            One controll
           </div>
-          <div className="tagline" style={{ marginLeft: '38px', marginBottom: '1.5rem' }}>from RoqIA</div>
+          <div className="tagline" style={{ marginLeft: '44px', marginBottom: '1.5rem' }}>from RoqIA</div>
         </div>
         <p className="login-subtitle">
           Faça login para acessar suas finanças com segurança.
@@ -132,7 +133,7 @@ const Login = ({ onLogin }) => {
         </form>
 
         <div className="login-footer">
-          One Controll &copy; {new Date().getFullYear()} — Controle Financeiro Pessoal
+          One controll &copy; {new Date().getFullYear()} — Controle Financeiro Pessoal
         </div>
       </div>
     </div>

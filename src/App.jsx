@@ -11,6 +11,7 @@ import TransactionModal from './components/TransactionModal';
 import Login from './components/Login';
 import { INITIAL_TRANSACTIONS, generateInstallments, DEFAULT_CARDS } from './data';
 import { loadSession, clearSession } from './auth';
+import roqiaLogo from './assets/roqia_logo.png';
 
 const fmt = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 const MONTH_NAMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -196,8 +197,8 @@ function App() {
       <aside className="sidebar">
         <div className="brand">
           <div className="brand-main">
-            <Wallet size={22} />
-            One Controll
+            <img src={roqiaLogo} alt="RoqIA Logo" style={{ width: 28, height: 28, objectFit: 'contain' }} />
+            One controll
           </div>
           <div className="tagline">from RoqIA</div>
         </div>

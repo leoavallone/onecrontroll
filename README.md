@@ -1,6 +1,6 @@
-# One Controll
+# One controll
 
-One Controll is a comprehensive financial management application designed to provide a clear and detailed view of your personal finances.
+One controll is a comprehensive financial management application designed to provide a clear and detailed view of your personal finances.
 
 ## Key Features
 
