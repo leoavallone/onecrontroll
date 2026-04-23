@@ -12,8 +12,8 @@ import Login from './components/Login';
 import SettingsPanel from './components/SettingsPanel';
 import { generateInstallments } from './data';
 import { loadSession, clearSession, saveSession } from './auth';
-import { getCloudConfigStatus } from './cloud';
 import { useAccountData } from './hooks/useAccountData';
+import { DEFAULT_PREFERENCES, loadUserPreferences, saveUserPreferences } from './services/localPreferences';
 
 const fmt = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 const MONTH_NAMES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
@@ -29,18 +29,24 @@ const inMonth = (tx, year, month) => {
 
 function App() {
   const [user, setUser] = useState(() => loadSession());
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState(() => {
+    const session = loadSession();
+    return session ? loadUserPreferences(session.id).startPage || 'dashboard' : 'dashboard';
+  });
   const [editingTx, setEditingTx] = useState(null);
   const [showNewModal, setShowNewModal] = useState(false);
   const [newModalDefaults, setNewModalDefaults] = useState(null);
   const [selectedYear, setSelectedYear] = useState(DEFAULT_YEAR);
   const [selectedMonth, setSelectedMonth] = useState(DEFAULT_MONTH);
+  const [preferences, setPreferences] = useState(() => {
+    const session = loadSession();
+    return session ? loadUserPreferences(session.id) : DEFAULT_PREFERENCES;
+  });
   const handleSessionUpdate = useCallback((updatedUser) => {
     setUser(updatedUser);
     saveSession(updatedUser);
   }, []);
 
-  const cloudStatus = getCloudConfigStatus();
   const isFinancialTab = activeTab !== 'settings';
   const {
     transactions,
@@ -49,18 +55,30 @@ function App() {
     setCards,
     hydrated,
     loadingData,
-    syncState,
-    syncNow,
-    importLocalData,
   } = useAccountData({
     user,
     onSessionUpdate: handleSessionUpdate,
   });
 
-  const handleLogin = (loggedUser) => setUser(loggedUser);
+  const handleLogin = (loggedUser) => {
+    const loadedPreferences = loadUserPreferences(loggedUser.id);
+    setUser(loggedUser);
+    setPreferences(loadedPreferences);
+    setActiveTab(loadedPreferences.startPage || 'dashboard');
+  };
   const handleLogout = () => {
     clearSession();
     setUser(null);
+    setPreferences(DEFAULT_PREFERENCES);
+    setActiveTab('dashboard');
+  };
+
+  const handlePreferenceChange = (key, value) => {
+    setPreferences((current) => {
+      const next = { ...current, [key]: value };
+      if (user) saveUserPreferences(user.id, next);
+      return next;
+    });
   };
 
   const prevMonth = () => {
@@ -175,7 +193,7 @@ function App() {
     cartoes: { title: 'Cartões de Crédito', sub: 'Faturas e lançamentos por cartão' },
     fixas: { title: 'Despesas Fixas', sub: 'Contas e assinaturas recorrentes' },
     receitas: { title: 'Receitas', sub: 'Salários, freelances e outras entradas' },
-    settings: { title: 'Configurações', sub: 'Conta, sincronização e banco de dados' },
+    settings: { title: 'Configurações', sub: 'Aparência e preferências do seu app' },
   };
 
   const pageProps = {
@@ -208,7 +226,7 @@ function App() {
   }
 
   return (
-    <div className="app-container">
+    <div className={`app-container theme-${preferences.theme} ${preferences.compactMode ? 'app-compact' : ''}`}>
       <aside className="sidebar">
         <div className="brand">
           <div className="brand-main">One controll</div>
@@ -227,16 +245,18 @@ function App() {
           </div>
         ))}
 
-        <div className="balance-widget">
-          <div className="bw-label">Saldo — {MONTH_NAMES[selectedMonth - 1]}</div>
-          <div className="bw-value" style={{ color: balance >= 0 ? 'var(--success)' : 'var(--danger)' }}>
-            {fmt(Math.abs(balance))}
+        {preferences.showBalanceWidget && (
+          <div className="balance-widget">
+            <div className="bw-label">Saldo — {MONTH_NAMES[selectedMonth - 1]}</div>
+            <div className="bw-value" style={{ color: balance >= 0 ? 'var(--success)' : 'var(--danger)' }}>
+              {fmt(Math.abs(balance))}
+            </div>
+            <div className="bw-breakdown">
+              <span className="bw-income">↑ {fmt(totalIncome)}</span>
+              <span className="bw-expense">↓ {fmt(totalExpense)}</span>
+            </div>
           </div>
-          <div className="bw-breakdown">
-            <span className="bw-income">↑ {fmt(totalIncome)}</span>
-            <span className="bw-expense">↓ {fmt(totalExpense)}</span>
-          </div>
-        </div>
+        )}
 
         <div className="sidebar-footer">
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', marginBottom: 4 }}>
@@ -319,10 +339,8 @@ function App() {
         {activeTab === 'settings' && (
           <SettingsPanel
             user={user}
-            syncState={syncState}
-            cloudStatus={cloudStatus}
-            onSyncNow={syncNow}
-            onImportLocalData={importLocalData}
+            preferences={preferences}
+            onPreferenceChange={handlePreferenceChange}
           />
         )}
       </main>
